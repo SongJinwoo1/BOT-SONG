@@ -1,4 +1,4 @@
-const http = require('http');
+٨const http = require('http');
 http.createServer((req, res) => { res.write('Song Jinwoo is Alive!'); res.end(); }).listen(process.env.PORT || 3000);
 
 const { default: makeWASocket, useMultiFileAuthState, delay } = require('@whiskeysockets/baileys');
