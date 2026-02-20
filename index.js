@@ -1,40 +1,58 @@
-const http = require('http');
-http.createServer((req, res) => { res.write('𝑩𝑶𝑻 𝑺𝒐𝒏𝒈 𝑱𝒊𝒏 𝑾𝒐𝒐 is Online!'); res.end(); }).listen(process.env.PORT || 3000);
-
-const { default: makeWASocket, useMultiFileAuthState, delay } = require('@whiskeysockets/baileys');
+// Shadow Developers Bot Core - Created by Song Jin Woo
+const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 
-async function start() {
-    // استخدام اسم جلسة فريد تماماً
-    const { state, saveCreds } = await useMultiFileAuthState('session_jinwoo_final_v2');
-    
+async function startShadowBot() {
+    // 1. نظام الحياة (Life Cycle) - مرحلة التهيئة
+    console.log('🌑 [SYSTEM]: Initializing Shadow Army...');
+    console.log('⚡ [SYSTEM]: Power Level: Beyond Measure.');
+
+    const { state, saveCreds } = await useMultiFileAuthState('shadow_session');
+
     const sock = makeWASocket({
-        logger: pino({ level: 'silent' }),
         auth: state,
-        // تعريف متصفح أكثر استقراراً لتقليل أخطاء طلب الكود
-        browser: ["Windows", "Chrome", "11.0.0"],
-        printQRInTerminal: false
+        printQRInTerminal: true,
+        logger: pino({ level: 'silent' })
     });
 
-    if (!sock.authState.creds.registered) {
-        const phoneNumber = "201055719273"; 
-        console.log('⏳ جاري محاولة طلب كود الربط بطريقة آمنة...');
-        await delay(15000); // زيادة وقت الانتظار لضمان استقرار السيرفر
-        try {
-            const code = await sock.requestPairingCode(phoneNumber);
-            console.log(`\n\n✅ كود الربط الخاص بك هو: ${code}\n\n`);
-        } catch (err) {
-            console.log('❌ واتساب رفض الطلب حالياً، يرجى عمل Clear Cache والانتظار دقيقتين.');
+    // 2. نظام الحياة - عند اكتمال الاتصال
+    sock.ev.on('connection.update', (update) => {
+        const { connection, lastDisconnect, qr } = update;
+
+        if (qr) {
+            console.log('💠 [QR]: Shadow Portal is Open. Scan the QR Code.');
         }
-    }
+
+        if (connection === 'open') {
+            console.log('✅ [STATUS]: Shadow Monarch has Awakened!');
+            console.log('🌍 [NETWORK]: Connection Established Successfully.');
+            console.log('--- 𝑺𝒐𝒏𝒈 𝑱𝒊𝒏 𝑾𝒐𝒐 is now Active ---');
+        }
+
+        if (connection === 'close') {
+            console.log('⚠️ [SYSTEM]: Connection Lost. Attempting to Re-awake...');
+            startShadowBot(); // إعادة التشغيل تلقائياً
+        }
+    });
 
     sock.ev.on('creds.update', saveCreds);
-    sock.ev.on('messages.upsert', async m => {
+
+    // 3. معالجة الرسائل بلمسة منظمة Shadow Devs
+    sock.ev.on('messages.upsert', async (m) => {
         const msg = m.messages[0];
         if (!msg.message || msg.key.fromMe) return;
-        if (msg.message.conversation === '.start') {
-            await sock.sendMessage(msg.key.remoteJid, { text: '⚔️ *ARISE!*\n\nتم تفعيل *𝑩𝑶𝑻 𝑺𝒐𝒏𝒈 𝑱𝒊𝒏 𝑾𝒐𝒐* بنجاح.' });
+
+        const text = msg.message.conversation || msg.message.extendedTextMessage?.text;
+
+        // أمر الترحيب (نظام المنظمة)
+        if (text === '.start') {
+            const sender = msg.key.remoteJid;
+            await sock.sendMessage(sender, { 
+                text: `🛡️ *ECLIPSE GUILD SYSTEM* 🌑\n\nWelcome to the Shadow Realm.\nYour Guild Bot is ready to serve.\n\nDeveloped by: *𝑺𝒐𝒏𝒈 𝑱𝒊𝒏 𝑾𝒐𝒐*` 
+            });
         }
     });
 }
-start();
+
+// بدء التشغيل
+startShadowBot().catch(err => console.log('❌ [ERROR]: Critical Failure: ' + err));
