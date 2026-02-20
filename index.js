@@ -1,60 +1,33 @@
 const http = require('http');
+http.createServer((req, res) => { res.write('Song Jinwoo is Alive!'); res.end(); }).listen(process.env.PORT || 3000);
 
-// كود نبض الحياة لإبقاء السيرفر يعمل على Render ومنع إغلاقه
-http.createServer((req, res) => {
-  res.write('Song Jinwoo is Alive!');
-  res.end();
-}).listen(process.env.PORT || 3000);
-
-const { 
-    default: makeWASocket, 
-    useMultiFileAuthState, 
-    delay, 
-    makeCacheableSignalKeyStore 
-} = require('@whiskeysockets/baileys');
+const { default: makeWASocket, useMultiFileAuthState, delay } = require('@whiskeysockets/baileys');
 const pino = require('pino');
 
 async function start() {
     const { state, saveCreds } = await useMultiFileAuthState('session');
-    
     const sock = makeWASocket({
         logger: pino({ level: 'silent' }),
         auth: state,
-        browser: ["Ubuntu", "Chrome", "20.0.04"] // ضروري لعمل كود الربط
+        browser: ["Ubuntu", "Chrome", "20.0.04"]
     });
 
-    // ---- نظام الربط بالكود (بدلاً من الـ QR) ----
+    // سطر طلب كود الربط لرقمك
     if (!sock.authState.creds.registered) {
-        const phoneNumber = "201055719273"; // رقم هاتفك الذي زودتني به
-        await delay(5000); // انتظار بسيط لضمان استقرار الاتصال
+        const phoneNumber = "201055719273"; 
+        await delay(5000);
         const code = await sock.requestPairingCode(phoneNumber);
         console.log(`\n\n🔗 كود الربط الخاص بك هو: ${code}\n\n`);
     }
-    // ------------------------------------------
 
     sock.ev.on('creds.update', saveCreds);
-
     sock.ev.on('messages.upsert', async m => {
         const msg = m.messages[0];
         if (!msg.message || msg.key.fromMe) return;
-
-        const command = msg.message.conversation || msg.message.extendedTextMessage?.text;
-
-        if (command === '.start') {
-            await sock.sendMessage(msg.key.remoteJid, { 
-                text: `⚔️ ARISE! \nأنا Song Jinwoo في خدمتك .` 
-            });
+        if (msg.message.conversation === '.start') {
+            await sock.sendMessage(msg.key.remoteJid, { text: '⚔️ ARISE! \nجيش الظلال مستعد.' });
         }
     });
-
-    sock.ev.on('connection.update', (update) => {
-        const { connection } = update;
-        if (connection === 'open') {
-            console.log('✅ تم ربط الواتساب بنجاح! جيش الظلال مستعد.');
-        }
-    });
-
     console.log('✅ Bot is running...');
 }
-
 start();
