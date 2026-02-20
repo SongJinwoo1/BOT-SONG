@@ -1,6 +1,6 @@
 const http = require('http');
 
-// كود نبض الحياة لإبقاء السيرفر يعمل على Render
+// كود نبض الحياة لإبقاء السيرفر يعمل على Render ومنع إغلاقه
 http.createServer((req, res) => {
   res.write('Song Jinwoo is Alive!');
   res.end();
@@ -8,19 +8,29 @@ http.createServer((req, res) => {
 
 const { 
     default: makeWASocket, 
-    useMultiFileAuthState 
+    useMultiFileAuthState, 
+    delay, 
+    makeCacheableSignalKeyStore 
 } = require('@whiskeysockets/baileys');
 const pino = require('pino');
-require('./config'); // التأكد من وجود ملف config.js في مستودعك
 
 async function start() {
     const { state, saveCreds } = await useMultiFileAuthState('session');
     
-    const sock = makeWASocket({ 
-        logger: pino({ level: 'silent' }), 
-        auth: state, 
-        printQRInTerminal: true 
+    const sock = makeWASocket({
+        logger: pino({ level: 'silent' }),
+        auth: state,
+        browser: ["Ubuntu", "Chrome", "20.0.04"] // ضروري لعمل كود الربط
     });
+
+    // ---- نظام الربط بالكود (بدلاً من الـ QR) ----
+    if (!sock.authState.creds.registered) {
+        const phoneNumber = "201055719273"; // رقم هاتفك الذي زودتني به
+        await delay(5000); // انتظار بسيط لضمان استقرار الاتصال
+        const code = await sock.requestPairingCode(phoneNumber);
+        console.log(`\n\n🔗 كود الربط الخاص بك هو: ${code}\n\n`);
+    }
+    // ------------------------------------------
 
     sock.ev.on('creds.update', saveCreds);
 
@@ -32,8 +42,15 @@ async function start() {
 
         if (command === '.start') {
             await sock.sendMessage(msg.key.remoteJid, { 
-                text: `⚔️ ARISE! \nأنا ${global.botName || 'Song Jinwoo'} في خدمتك.` 
+                text: `⚔️ ARISE! \nأنا Song Jinwoo في خدمتك .` 
             });
+        }
+    });
+
+    sock.ev.on('connection.update', (update) => {
+        const { connection } = update;
+        if (connection === 'open') {
+            console.log('✅ تم ربط الواتساب بنجاح! جيش الظلال مستعد.');
         }
     });
 
