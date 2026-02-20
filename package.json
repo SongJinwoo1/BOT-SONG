@@ -1,0 +1,14 @@
+{
+  "name": "jinwoo-bot",
+  "version": "1.0.0",
+  "description": "Song Jin Woo Bot",
+  "main": "index.js",
+  "scripts": {
+    "start": "node index.js"
+  },
+  "dependencies": {
+    "@whiskeysockets/baileys": "latest",
+    "pino": "latest",
+    "qrcode-terminal": "latest"
+  }
+}
