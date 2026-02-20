@@ -5,22 +5,27 @@ const { default: makeWASocket, useMultiFileAuthState, delay } = require('@whiske
 const pino = require('pino');
 
 async function start() {
-    const { state, saveCreds } = await useMultiFileAuthState('session_ultimate');
+    // استخدام اسم جلسة فريد تماماً
+    const { state, saveCreds } = await useMultiFileAuthState('session_jinwoo_final_v2');
+    
     const sock = makeWASocket({
         logger: pino({ level: 'silent' }),
         auth: state,
-        browser: ["𝑩𝑶𝑻 𝑺𝒐𝒏𝒈 𝑱𝒊𝒏 𝑾𝒐𝒐", "Chrome", "20.0.04"],
+        // تعريف متصفح أكثر استقراراً لتقليل أخطاء طلب الكود
+        browser: ["Windows", "Chrome", "11.0.0"],
         printQRInTerminal: false
     });
 
     if (!sock.authState.creds.registered) {
-        const phoneNumber = "201055719273"; // رقمك المصري
-        console.log('⏳ جاري طلب كود الربط...');
-        await delay(10000); 
+        const phoneNumber = "201055719273"; 
+        console.log('⏳ جاري محاولة طلب كود الربط بطريقة آمنة...');
+        await delay(15000); // زيادة وقت الانتظار لضمان استقرار السيرفر
         try {
             const code = await sock.requestPairingCode(phoneNumber);
             console.log(`\n\n✅ كود الربط الخاص بك هو: ${code}\n\n`);
-        } catch (err) { console.log('❌ خطأ في طلب الكود'); }
+        } catch (err) {
+            console.log('❌ واتساب رفض الطلب حالياً، يرجى عمل Clear Cache والانتظار دقيقتين.');
+        }
     }
 
     sock.ev.on('creds.update', saveCreds);
@@ -28,9 +33,8 @@ async function start() {
         const msg = m.messages[0];
         if (!msg.message || msg.key.fromMe) return;
         if (msg.message.conversation === '.start') {
-            await sock.sendMessage(msg.key.remoteJid, { text: '⚔️ *ARISE!*\n\nأنا *𝑩𝑶𝑻 𝑺𝒐𝒏𝒈 𝑱𝒊𝒏 𝑾𝒐𝒐* تحت خدمتك.' });
+            await sock.sendMessage(msg.key.remoteJid, { text: '⚔️ *ARISE!*\n\nتم تفعيل *𝑩𝑶𝑻 𝑺𝒐𝒏𝒈 𝑱𝒊𝒏 𝑾𝒐𝒐* بنجاح.' });
         }
     });
-    console.log('✅ البوت يعمل الآن...');
 }
 start();
