@@ -1,3 +1,5 @@
+const http = require('http');
+http.createServer((req, res) => res.end('Song Jinwoo is Alive!')).listen(process.env.PORT || 3000);
 const { default: makeWASocket, useMultiFileAuthState } = require('@whiskeysockets/baileys')
 const pino = require('pino')
 require('./config')
