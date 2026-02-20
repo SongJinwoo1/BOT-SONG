@@ -1,10 +1,13 @@
 {
-  "name": "jinwoo-bot",
+  "name": "shadow-bot",
   "version": "1.0.0",
+  "description": "Shadow Developers Organization Bot",
   "main": "index.js",
-  "scripts": { "start": "node index.js" },
+  "scripts": {
+    "start": "node index.js"
+  },
   "dependencies": {
-    "@whiskeysockets/baileys": "^6.5.0",
-    "pino": "^8.16.1"
+    "@whiskeysockets/baileys": "latest",
+    "pino": "^8.0.0"
   }
 }
