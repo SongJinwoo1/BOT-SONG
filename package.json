@@ -1,0 +1,10 @@
+{
+  "name": "bot-song",
+  "version": "1.0.0",
+  "description": "Igris Shadow Bot",
+  "main": "bot.js",
+  "dependencies": {
+    "node-telegram-bot-api": "^0.66.0",
+    "@google/generative-ai": "^0.1.0"
+  }
+}
