@@ -5,10 +5,17 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Song Jinwoo Dashboard</title>
     <script src="https://telegram.org/js/telegram-web-app.js"></script>
+    <script>
+        // تهيئة تطبيق تلجرام فور التحميل
+        window.Telegram.WebApp.ready();
+        window.Telegram.WebApp.expand(); // تمديد التطبيق ليملأ الشاشة
+    </script>
     <link rel="stylesheet" href="style.css">
 </head>
 <body>
-    <div id="particles-container"></div> <div class="app-container">
+    <div id="particles-container"></div> 
+
+    <div class="app-container">
         <nav class="main-nav">
             <button onclick="showSection('shop')">Shop 🛒</button>
             <button onclick="showSection('sys')">SYS ⚙️</button>
@@ -24,13 +31,14 @@
                 <button class="toggle-btn" onclick="toggleGuildsGrid()">عرض النقابات</button>
                 <button class="edit-btn" onclick="openEditMenu()">تعديل ✎</button>
             </div>
-            
+
             <div id="guilds-grid" class="guilds-grid">
                 </div>
         </section>
 
         <div id="other-content" class="content-section">
             <h2 id="section-title">مرحباً بك في نظام سونغ</h2>
+            <p style="text-align: center; color: #aaa;">اختر قسماً من القائمة في الأعلى لاستكشاف النظام.</p>
         </div>
     </div>
 
