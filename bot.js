@@ -1,26 +1,47 @@
 const TelegramBot = require('node-telegram-bot-api');
+const { GoogleGenerativeAI } = require("@google/generative-ai");
 
-// استبدل TOKEN_HERE بالتوكن الذي حصلت عليه من BotFather
-const token = 'TOKEN_HERE'; 
+// الإعدادات الملكية
+const token = '8791301875:AAHRQTsrFhf86pxV7b0JMFRArsXmE-jZIKk';
+const apiKey = "AIzaSyBBTsG3n75BxQOwT-EL3WVwXeqradpjkUw";
+const adminNumber = '+96597805334';
+
+const genAI = new GoogleGenerativeAI(apiKey);
 const bot = new TelegramBot(token, {polling: true});
 
-const webAppUrl = 'https://songjinwoo1.github.io/BOT-SONG/';
+// الأزرار الرئيسية
+const mainKeyboard = {
+    reply_markup: {
+        keyboard: [
+            ['🛡️ قسم النقابات', '🛠️ مطور البوتات'],
+            ['⚔️ الولاء والسيستم', '👑 هوية الملك']
+        ],
+        resize_keyboard: true
+    }
+};
 
-bot.onText(/\/start/, (msg) => {
+bot.on('message', async (msg) => {
     const chatId = msg.chat.id;
-    
-    bot.sendMessage(chatId, 'مرحباً بك في نظام سونغ جين وو ⚔️\nيمكنك الآن إدارة النقابات والمهام عبر التطبيق المصغر:', {
-        reply_markup: {
-            inline_keyboard: [
-                [{ text: 'فتح لوحة التحكم 🖥️', web_app: { url: webAppUrl } }]
-            ]
+    const text = msg.text;
+    if (!text) return;
+
+    if (text === '/start') {
+        bot.sendMessage(chatId, "مرحباً بك يا مولاي في نظامك المطور على GitHub. إغريس تحت أمرك.", mainKeyboard);
+    } 
+    else if (text === '👑 هوية الملك') {
+        bot.sendMessage(chatId, `أنت الملك المصمم وصاحب الرقم المعتمد: ${adminNumber}`);
+    }
+    else {
+        // ذكاء اصطناعي للردود الحرة
+        bot.sendChatAction(chatId, 'typing');
+        try {
+            const model = genAI.getGenerativeModel({ model: "gemini-1.5-flash" });
+            const result = await model.generateContent(`أنت إغريس، مساعد الملك ${adminNumber}. رُد بفخامة: ${text}`);
+            bot.sendMessage(chatId, result.response.text());
+        } catch (e) {
+            bot.sendMessage(chatId, "عذراً مولاي، بوابة الظلال مشوشة حالياً.");
         }
-    });
+    }
 });
 
-// رسالة ترحيبية عند الضغط على زر المساعدة
-bot.onText(/\/help/, (msg) => {
-    bot.sendMessage(msg.chat.id, "أهلاً بك! استخدم أمر /start لفتح الواجهة.");
-});
-
-console.log("البوت يعمل الآن بنجاح...");
+console.log("إغريس استيقظ من مخزن GitHub..");
