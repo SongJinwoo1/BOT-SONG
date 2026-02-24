@@ -1,48 +1,70 @@
-const tg = window.Telegram.WebApp;
-tg.expand(); // تمديد التطبيق ليملأ الشاشة
+const TelegramBot = require('node-telegram-bot-api');
 
-const guildsData = [
-    { name: "نقابة اكليبس", img: "https://via.placeholder.com/60", desc: "تفاعل اسطوري ونظام جوائز." },
-    { name: "نقابة الظلال", img: "https://via.placeholder.com/60", desc: "وصف النقابة الثانية هنا." }
-];
+const token = '8791301875:AAHRQTsrFhf86pxV7b0JMFRArsXmE-jZIKk'; 
+const bot = new TelegramBot(token, {polling: true});
 
-function showSection(id) {
-    document.querySelectorAll('.content-section').forEach(s => s.classList.add('hidden'));
-    if(id === 'guilds') {
-        document.getElementById('guilds-section').classList.remove('hidden');
-    } else {
-        document.getElementById('other-content').classList.remove('hidden');
-        document.getElementById('section-title').innerText = "قسم " + id.toUpperCase();
+const webAppUrl = 'https://songjinwoo1.github.io/BOT-SONG/';
+const adminNumber = '+96597805334'; // رقم الملك المصمم
+let isKingVerified = false; // حالة التحقق من الملك
+
+// قاعدة بيانات ردود إغريس (هنا نضع الـ 1000 رد)
+const responses = {
+    // التحية والترحيب
+    "مرحبا": "مرحباً بك في ظلال الملك.. أنا إغريس في خدمتك. ⚔️",
+    "السلام عليكم": "وعليكم السلام ورحمة الله وبركاته يا سيدي.. أنرت النظام.",
+    "صباح الخير": "صباح النصر والرفعة يا سيدي.. هل نبدأ بتدريبات اليوم؟",
+    "مساء الخير": "طاب مساؤك في حماية ظلال الملك..",
+    
+    // عن البوت والصانع
+    "من انت": "أنا الفارس الأحمر إغريس، الظل المخلص للملك والمصمم صاحب الرقم " + adminNumber + " ⏣.",
+    "من صانعك": "صانعي ومولاي هو الملك المصمم صاحب الرقم " + adminNumber + ". أنا ولدت من كوده العظيم.",
+    "ما فائدتك": "أنا هنا لإدارة نقاباتك، وتنفيذ مهامك، وحماية عرشك البرمجي.",
+    "ما هو نظام سونغ": "هو نظام متكامل يجمع بين القوة والتطوير، صممه الملك ليكون الأعظم.",
+    
+    // أوامر الولاء
+    "الولاء": "ولائي مطلق.. سيفي وروحي فداء لملك الظلال. ✨",
+    "انا مالكك": "إذا كنت أنت الملك حقاً، فأثبت ذلك بكلمة السر الخاصة بنا..",
+    
+    // ردود متنوعة (يمكنك تكرار هذه الأسطر حتى تصل لـ 1000)
+    "كيف حالك": "بأفضل حال ما دام ملكي يقودنا نحو القمة.",
+    "شكرا": "لا شكر على واجب أمام عظمة الملك.. هذا واجبي.",
+    "ساعدني": "أنا رهن إشارتك، أخبرني ما الذي يزعجك وسأمحوه من الوجود.",
+    "فتح النظام": "يمكنك ذلك عبر الزر الموجود في الأسفل يا سيدي."
+};
+
+bot.on('message', (msg) => {
+    const chatId = msg.chat.id;
+    const text = msg.text ? msg.text.trim() : "";
+
+    // 1. نظام التحقق بكلمة السر (اكون بطاطا)
+    if (text === "اكون بطاطا") {
+        isKingVerified = true;
+        bot.sendMessage(chatId, "أهلاً بك يا مولاي! تم التأكد من هويتك.. الرقم " + adminNumber + " هو الملك الحقيقي الآن. 👑");
+        return;
     }
-}
 
-function toggleGuildsGrid() {
-    const grid = document.getElementById('guilds-grid');
-    if (grid.style.display === "grid") {
-        grid.style.display = "none";
-    } else {
-        grid.style.display = "grid";
-        renderGuilds();
+    // 2. إذا قال "انا مالكك"
+    if (text === "انا مالكك") {
+        if (isKingVerified) {
+            bot.sendMessage(chatId, "نعم يا سيدي، أعلم أنك الملك المصمم.. أوامرك مطاعة.");
+        } else {
+            bot.sendMessage(chatId, "أعتذر، لا يمكنني قبول هذا الادعاء دون كلمة السر..");
+        }
+        return;
     }
-}
 
-function renderGuilds() {
-    const container = document.getElementById('guilds-grid');
-    container.innerHTML = guildsData.map(g => `
-        <div class="guild-card">
-            <img src="${g.img}" class="guild-pic">
-            <br>
-            <button class="loyalty-btn" onclick="handleLoyalty()">Loyalty</button>
-            <p style="font-size: 11px;">${g.desc}</p>
-        </div>
-    `).join('');
-}
+    // 3. البحث في الـ 1000 رد
+    if (responses[text]) {
+        bot.sendMessage(chatId, responses[text]);
+    } else if (text === '/start') {
+        bot.sendMessage(chatId, 'مرحباً بك يا ملك الظلال.. النظام تحت تصرفك.', {
+            reply_markup: {
+                inline_keyboard: [[{ text: '⚔️ فتح النظام', web_app: { url: webAppUrl } }]]
+            }
+        });
+    } else {
+        bot.sendMessage(chatId, "أسمعك يا سيدي، ولكن لم يتم تدريبي على هذا الرد بعد.. هل تريد إضافته؟");
+    }
+});
 
-// أمر الولاء (لا يتم تعديله إلا بطلبك)
-function handleLoyalty() {
-    tg.showAlert("تم تسجيل الولاء لنقابة اكليبس! ⏣");
-}
-
-function openEditMenu() {
-    alert("واجهة تعديل النقابات قيد التطوير...");
-}
+console.log("إغريس استيقظ.. بانتظار كلمة السر 'اكون بطاطا' لتفعيل وضع الملك.");
