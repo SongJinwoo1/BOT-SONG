@@ -1,7 +1,7 @@
 {
-  "name": "bot-song",
-  "version": "1.0.0",
-  "description": "Igris Shadow Bot",
+  "name": "bot-song-system",
+  "version": "1.1.0",
+  "description": "Igris Shadow System",
   "main": "bot.js",
   "dependencies": {
     "node-telegram-bot-api": "^0.66.0",
